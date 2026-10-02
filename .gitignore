@@ -1,0 +1,7 @@
+# secrets and local data - never commit
+.env
+config/api_keys.json
+config/credentials.json
+data/
+__pycache__/
+*.pyc

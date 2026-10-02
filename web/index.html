@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Outreach Desk — Recruiter Finder</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --paper: #f5f1e8;
+            --panel: #fbf9f4;
+            --card: #ffffff;
+            --ink: #1f2a24;
+            --ink-2: #4c5a52;
+            --ink-3: #7b877f;
+            --line: #e3dccb;
+            --line-strong: #cfc6b0;
+            --green: #1f5c45;
+            --green-hover: #174734;
+            --green-soft: #e3efe8;
+            --amber: #9a5b13;
+            --amber-soft: #f7e9d0;
+            --teal: #0f5f73;
+            --teal-soft: #dcedf1;
+            --danger: #a8322a;
+            --radius: 14px;
+            --shadow: 0 1px 2px rgba(31, 42, 36, .06), 0 6px 18px -8px rgba(31, 42, 36, .12);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html, body { height: 100%; }
+        body {
+            font-family: 'DM Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+            background: var(--paper);
+            color: var(--ink);
+            font-size: 14.5px;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .shell { display: grid; grid-template-columns: 340px 1fr; min-height: 100vh; }
+
+        /* ---------- Sidebar ---------- */
+        aside {
+            background: var(--panel); border-right: 1px solid var(--line);
+            padding: 28px 24px; display: flex; flex-direction: column; gap: 22px;
+            position: sticky; top: 0; height: 100vh; overflow-y: auto;
+        }
+        .brand { display: flex; flex-direction: column; gap: 2px; }
+        .brand-name { font-family: 'Fraunces', Georgia, serif; font-size: 24px; font-weight: 600; letter-spacing: -0.01em; color: var(--green); }
+        .brand-sub { font-size: 12.5px; color: var(--ink-3); }
+
+        .status {
+            display: flex; align-items: center; gap: 8px; padding: 8px 12px; font-size: 12.5px; color: var(--ink-2);
+            background: var(--card); border: 1px solid var(--line); border-radius: 10px;
+        }
+        .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ink-3); flex-shrink: 0; }
+        .dot.ok { background: #2e9e6b; }
+        .dot.warn { background: #d99a2b; }
+
+        .form { display: flex; flex-direction: column; gap: 16px; }
+        .field { display: flex; flex-direction: column; gap: 6px; }
+        .field label, .label { font-size: 12px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--ink-3); }
+
+        .input, .select {
+            width: 100%; height: 42px; padding: 0 12px; font: inherit; color: var(--ink);
+            background: var(--card); border: 1px solid var(--line-strong); border-radius: 10px; outline: none;
+            transition: border-color .15s, box-shadow .15s;
+        }
+        .select {
+            appearance: none; padding-right: 34px; cursor: pointer;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%237b877f' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+            background-repeat: no-repeat; background-position: right 11px center;
+        }
+        .input::placeholder { color: var(--ink-3); }
+        .input:focus, .select:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgba(31, 92, 69, .16); }
+
+        .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+        .chip {
+            padding: 3px 11px; font: inherit; font-size: 12.5px; color: var(--ink-2); background: transparent;
+            border: 1px solid var(--line-strong); border-radius: 999px; cursor: pointer; transition: all .15s;
+        }
+        .chip:hover { color: var(--green); border-color: var(--green); background: var(--green-soft); }
+
+        .company-box {
+            display: flex; flex-wrap: wrap; gap: 6px; align-items: center; min-height: 42px; padding: 5px 6px;
+            background: var(--card); border: 1px solid var(--line-strong); border-radius: 10px; cursor: text;
+            transition: border-color .15s, box-shadow .15s;
+        }
+        .company-box:focus-within { border-color: var(--green); box-shadow: 0 0 0 3px rgba(31, 92, 69, .16); }
+        .company-box input { flex: 1; min-width: 90px; height: 28px; border: 0; outline: 0; font: inherit; color: var(--ink); background: transparent; padding: 0 4px; }
+        .ctag {
+            display: inline-flex; align-items: center; gap: 4px; padding: 3px 4px 3px 10px; border-radius: 999px;
+            font-size: 13px; font-weight: 600; background: var(--green-soft); color: var(--green);
+        }
+        .ctag.running { background: var(--amber-soft); color: var(--amber); }
+        .ctag small { font-weight: 500; opacity: .8; }
+        .ctag button {
+            width: 18px; height: 18px; display: grid; place-items: center; border: 0; border-radius: 50%; cursor: pointer;
+            background: transparent; color: inherit; font-size: 14px; line-height: 1;
+        }
+        .ctag button:hover { background: var(--danger); color: #fff; }
+
+        .seg { display: grid; grid-template-columns: 1fr 1fr; background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 3px; gap: 3px; }
+        .seg input { position: absolute; opacity: 0; pointer-events: none; }
+        .seg label {
+            text-align: center; padding: 7px 0; border-radius: 7px; cursor: pointer; text-transform: none; letter-spacing: 0;
+            font-size: 13px; font-weight: 500; color: var(--ink-2);
+        }
+        .seg input:checked + label { background: var(--card); color: var(--green); box-shadow: 0 1px 2px rgba(31, 42, 36, .12); font-weight: 600; }
+        .seg input:focus-visible + label { outline: 2px solid var(--green); }
+
+        .check { display: flex; align-items: flex-start; gap: 10px; cursor: pointer; font-size: 13.5px; color: var(--ink-2); text-transform: none; letter-spacing: 0; font-weight: 400; }
+        .check input { width: 17px; height: 17px; margin-top: 2px; accent-color: var(--green); cursor: pointer; }
+
+        details.enrich summary {
+            cursor: pointer; list-style: none; font-size: 13px; color: var(--ink-2); font-weight: 500;
+            display: flex; align-items: center; gap: 6px;
+        }
+        details.enrich summary::-webkit-details-marker { display: none; }
+        details.enrich summary::before { content: '+'; display: grid; place-items: center; width: 18px; height: 18px; border: 1px solid var(--line-strong); border-radius: 5px; font-size: 13px; line-height: 1; }
+        details.enrich[open] summary::before { content: '–'; }
+        .enrich-body { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; }
+        .hint { font-size: 12px; color: var(--ink-3); }
+
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 44px; padding: 0 18px;
+            font: inherit; font-weight: 600; font-size: 14.5px; border-radius: 10px; border: 1px solid transparent; cursor: pointer;
+            white-space: nowrap; transition: background .15s, border-color .15s;
+        }
+        .btn-primary { background: var(--green); color: #fff; width: 100%; }
+        .btn-sm.btn-primary { width: auto; }
+        .btn-primary:hover:not(:disabled) { background: var(--green-hover); }
+        .btn-ghost { background: var(--card); color: var(--ink); border-color: var(--line-strong); }
+        .btn-ghost:hover:not(:disabled) { background: var(--paper); }
+        .btn-sm { height: 36px; padding: 0 14px; font-size: 13.5px; }
+        .btn:disabled { opacity: .5; cursor: not-allowed; }
+        .spinner { width: 16px; height: 16px; border-radius: 50%; border: 2px solid rgba(255, 255, 255, .4); border-top-color: #fff; animation: spin .7s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ---------- Main ---------- */
+        main { padding: 36px 40px 64px; min-width: 0; }
+        .main-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 20px; }
+        .main-head h1 { font-family: 'Fraunces', Georgia, serif; font-weight: 500; font-size: 32px; letter-spacing: -0.02em; line-height: 1.15; }
+        .main-head p { color: var(--ink-3); margin-top: 4px; }
+        .count { display: inline-block; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600; color: var(--green); background: var(--green-soft); padding: 2px 10px; border-radius: 999px; vertical-align: middle; margin-left: 8px; letter-spacing: 0; }
+
+        .actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .filter { width: 220px; height: 36px; font-size: 13.5px; }
+
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+        .person-card {
+            background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px;
+            box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 14px; transition: transform .15s, border-color .15s;
+        }
+        .person-card:hover { transform: translateY(-2px); border-color: var(--line-strong); }
+        .person-top { display: flex; gap: 14px; align-items: flex-start; }
+        .avatar {
+            width: 46px; height: 46px; border-radius: 12px; flex-shrink: 0; display: grid; place-items: center;
+            font-family: 'Fraunces', Georgia, serif; font-weight: 600; font-size: 17px; color: var(--green); background: var(--green-soft);
+        }
+        .person-name { font-weight: 700; font-size: 15.5px; line-height: 1.25; }
+        .person-title { color: var(--ink-2); font-size: 13.5px; margin-top: 2px; }
+        .idx { margin-left: auto; font-size: 12px; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+
+        .meta { display: flex; flex-wrap: wrap; gap: 6px; }
+        .tag { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; background: var(--paper); color: var(--ink-2); border: 1px solid var(--line); }
+        .tag.verified { background: var(--green-soft); color: var(--green); border-color: transparent; }
+        .tag.likely { background: var(--amber-soft); color: var(--amber); border-color: transparent; }
+        .tag.tech { background: var(--teal-soft); color: var(--teal); border-color: transparent; }
+
+        .email-row { display: flex; align-items: center; gap: 8px; padding: 9px 11px; background: var(--paper); border-radius: 10px; min-height: 40px; font-size: 13.5px; }
+        .email-row .addr { font-weight: 600; word-break: break-all; flex: 1; min-width: 0; }
+        .email-row .none { color: var(--ink-3); flex: 1; }
+        .email-row .icon-btn { width: 28px; height: 28px; border-radius: 7px; background: var(--card); }
+        .conf { font-size: 11.5px; font-weight: 600; padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
+        .conf.pub { background: var(--green-soft); color: var(--green); }
+        .conf.pat { background: var(--teal-soft); color: var(--teal); }
+        .conf.guess { background: var(--amber-soft); color: var(--amber); }
+        .mini-spin { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--line-strong); border-top-color: var(--green); animation: spin .7s linear infinite; flex-shrink: 0; }
+        .keys-box { border: 1px solid var(--line); background: var(--card); border-radius: 12px; padding: 12px 14px; }
+        .keys-box summary { cursor: pointer; list-style: none; font-size: 13px; font-weight: 600; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+        .keys-box summary::-webkit-details-marker { display: none; }
+        .keys-sum { font-weight: 500; color: var(--ink-3); font-size: 12px; }
+        .keys-add { display: flex; gap: 6px; margin-top: 12px; }
+        .keys-add .input { height: 36px; font-size: 13px; }
+        .keys-add .btn { height: 36px; padding: 0 12px; font-size: 13px; }
+        .key-row { display: grid; grid-template-columns: 1fr auto; gap: 4px 8px; align-items: center; padding: 8px 0; border-top: 1px dashed var(--line); font-size: 12.5px; }
+        .key-row:first-of-type { margin-top: 10px; }
+        .key-name { font-family: ui-monospace, Consolas, monospace; font-weight: 600; }
+        .key-name small { font-family: 'DM Sans', sans-serif; font-weight: 500; color: var(--ink-3); margin-left: 6px; }
+        .key-actions { display: flex; gap: 2px; }
+        .key-actions .icon-btn { width: 26px; height: 26px; border-radius: 6px; }
+        .bar { grid-column: 1 / -1; height: 6px; background: var(--paper); border-radius: 999px; overflow: hidden; }
+        .bar > i { display: block; height: 100%; background: var(--green); border-radius: 999px; }
+        .bar.b-low > i { background: #d99a2b; } .bar.b-empty > i { background: var(--danger); }
+        .key-meta { grid-column: 1 / -1; color: var(--ink-3); font-size: 12px; }
+        .keys-empty { color: var(--ink-3); font-size: 12.5px; margin-top: 10px; }
+        .person-foot { display: flex; align-items: center; gap: 8px; padding-top: 14px; border-top: 1px dashed var(--line); margin-top: auto; }
+        .profile-link {
+            flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 36px; padding: 0 12px;
+            font-size: 13.5px; font-weight: 600; color: var(--green); text-decoration: none; border: 1px solid var(--green); border-radius: 9px;
+            transition: background .15s, color .15s;
+        }
+        .profile-link:hover { background: var(--green); color: #fff; }
+        .icon-btn { width: 36px; height: 36px; display: grid; place-items: center; border-radius: 9px; cursor: pointer; background: transparent; border: 1px solid var(--line-strong); color: var(--ink-2); }
+        .icon-btn:hover { background: var(--paper); color: var(--ink); }
+
+        .empty, .loading { grid-column: 1 / -1; text-align: center; padding: 72px 24px; color: var(--ink-3); background: var(--card); border: 1px dashed var(--line-strong); border-radius: var(--radius); }
+        .empty svg { color: var(--line-strong); margin-bottom: 12px; }
+        .empty h3, .loading strong { display: block; font-family: 'Fraunces', Georgia, serif; font-weight: 500; font-size: 20px; color: var(--ink); margin-bottom: 4px; }
+        .loading .ring { width: 30px; height: 30px; border-radius: 50%; margin: 0 auto 14px; border: 3px solid var(--line); border-top-color: var(--green); animation: spin .8s linear infinite; }
+
+        /* ---------- Modal ---------- */
+        .overlay { position: fixed; inset: 0; background: rgba(31, 42, 36, .5); display: none; align-items: center; justify-content: center; z-index: 100; padding: 24px; }
+        .modal { width: 100%; max-width: 640px; background: var(--card); border-radius: 16px; border: 1px solid var(--line); box-shadow: 0 24px 60px -12px rgba(0, 0, 0, .35); overflow: hidden; }
+        .modal-head, .modal-foot { padding: 16px 22px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+        .modal-head { border-bottom: 1px solid var(--line); }
+        .modal-head h2 { font-family: 'Fraunces', Georgia, serif; font-weight: 500; font-size: 20px; }
+        .modal-foot { border-top: 1px solid var(--line); justify-content: flex-end; background: var(--panel); }
+        .modal-foot .btn-primary { width: auto; }
+        .modal-body { padding: 22px; display: flex; flex-direction: column; gap: 14px; max-height: 70vh; overflow-y: auto; }
+        .modal .meta-box { display: flex; flex-wrap: wrap; gap: 6px 20px; padding: 10px 12px; background: var(--paper); border-radius: 10px; font-size: 13px; color: var(--ink-2); }
+        .modal .meta-box strong { color: var(--ink); }
+        textarea.input { height: 240px; padding: 12px; resize: vertical; line-height: 1.6; }
+
+        .sheet-modal { max-width: 1000px; }
+        .sheet-scroll { overflow: auto; max-height: 62vh; border: 1px solid var(--line-strong); border-radius: 10px; background: var(--card); }
+        table.sheet { border-collapse: collapse; width: 100%; min-width: 820px; font-size: 13.5px; }
+        table.sheet th, table.sheet td { border: 1px solid var(--line); padding: 7px 10px; text-align: left; vertical-align: top; }
+        table.sheet thead th { position: sticky; top: 0; background: var(--panel); color: var(--ink-3); font-weight: 600; text-align: center; font-size: 12px; z-index: 1; }
+        table.sheet thead tr.names th { top: 30px; color: var(--ink); background: var(--green-soft); text-align: left; font-size: 13px; }
+        table.sheet td.rownum, table.sheet th.rownum { width: 44px; text-align: center; color: var(--ink-3); background: var(--panel); font-size: 12px; }
+        table.sheet td.c-a { width: 190px; font-weight: 600; } table.sheet td.c-b { width: 250px; word-break: break-all; }
+        table.sheet td.c-c { width: 130px; } table.sheet td.blank { color: var(--ink-3); }
+        .sheet-note { font-size: 12.5px; color: var(--ink-3); }
+        .toast {
+            position: fixed; bottom: 24px; right: 24px; z-index: 1000; padding: 12px 18px; background: var(--ink); color: #fff;
+            border-radius: 10px; font-weight: 500; font-size: 14px; box-shadow: 0 10px 30px rgba(0, 0, 0, .25);
+            transform: translateY(16px); opacity: 0; pointer-events: none; transition: all .25s;
+        }
+        .toast.show { transform: none; opacity: 1; }
+        .toast.error { background: var(--danger); }
+
+        @media (max-width: 900px) {
+            .shell { grid-template-columns: 1fr; }
+            aside { position: static; height: auto; border-right: none; border-bottom: 1px solid var(--line); }
+            main { padding: 24px 20px 48px; }
+        }
+    </style>
+</head>
+<body>
+<div class="shell">
+    <aside>
+        <div class="brand">
+            <div class="brand-name">Outreach Desk</div>
+            <div class="brand-sub">Find the tech recruiters at any company</div>
+        </div>
+
+        <div class="form">
+            <div class="field">
+                <label for="companyInput">Companies</label>
+                <div class="company-box" id="companyBox" onclick="document.getElementById('companyInput').focus()">
+                    <span id="companyTags" style="display:contents"></span>
+                    <input type="text" id="companyInput" placeholder="Type a company, press Enter" autocomplete="off"
+                           onkeydown="companyKey(event)" onblur="addCompany(this.value)">
+                </div>
+                <span class="hint">Press Enter or comma to add. Click ✕ to remove. You can keep adding while a search is running.</span>
+                <div class="chips">
+                    <button type="button" class="chip" onclick="addCompany('Google')">Google</button>
+                    <button type="button" class="chip" onclick="addCompany('Meta')">Meta</button>
+                    <button type="button" class="chip" onclick="addCompany('Amazon')">Amazon</button>
+                    <button type="button" class="chip" onclick="addCompany('Microsoft')">Microsoft</button>
+                    <button type="button" class="chip" onclick="addCompany('Stripe')">Stripe</button>
+                    <button type="button" class="chip" onclick="addCompany('OpenAI')">OpenAI</button>
+                </div>
+            </div>
+
+            <div class="field">
+                <label for="roleSelect">Hiring track</label>
+                <select id="roleSelect" class="select">
+                    <option value="swe" selected>Software Engineering</option>
+                    <option value="ai_ml">AI / Machine Learning</option>
+                    <option value="data_science">Data Science &amp; Analytics</option>
+                </select>
+            </div>
+
+            <div class="field">
+                <span class="label">Location</span>
+                <div class="seg">
+                    <input type="radio" name="loc" id="loc-in" value="India" checked><label for="loc-in">India</label>
+                    <input type="radio" name="loc" id="loc-gl" value="Global"><label for="loc-gl">Global</label>
+                </div>
+                <select id="locationSelect" hidden><option value="India" selected>India</option><option value="Global">Global</option></select>
+            </div>
+
+            <div class="field">
+                <label for="limitSelect">Max results</label>
+                <select id="limitSelect" class="select">
+                    <option value="10">10</option>
+                    <option value="25">25</option>
+                    <option value="50" selected>50</option>
+                    <option value="100">100</option>
+                    <option value="0">All found</option>
+                </select>
+                <span class="hint">Per company.</span>
+            </div>
+
+            <div class="field">
+                <span class="label">Search depth</span>
+                <div class="seg">
+                    <input type="radio" name="depth" id="depth-deep" value="deep" checked><label for="depth-deep">Deep</label>
+                    <input type="radio" name="depth" id="depth-fast" value="fast"><label for="depth-fast">Fast</label>
+                </div>
+                <span class="hint">Deep runs many more queries — more people, a minute or two.</span>
+            </div>
+
+            <label class="check"><input type="checkbox" id="verifiedOnly" checked> Verified current employees only <span class="hint" style="display:block">Their own headline or current job names the company. Untick to also see “Likely” matches.</span></label>
+            <label class="check"><input type="checkbox" id="techOnly"> Tech-focused recruiters only</label>
+
+            
+
+            <details class="keys-box" id="keysBox" open>
+                <summary><span>ContactOut keys</span><span class="keys-sum" id="keysSummary">no keys</span></summary>
+                <div class="keys-add">
+                    <input type="password" id="keyInput" class="input" placeholder="Paste an API key" autocomplete="off" onkeydown="if(event.key==='Enter')addKey()">
+                    <button type="button" class="btn btn-ghost" onclick="addKey()">Add</button>
+                </div>
+                <button type="button" class="btn btn-ghost" id="testKeysBtn" style="margin-top:8px;width:100%" onclick="testKeys()">Test my keys (free)</button>
+                <div id="keysList"></div>
+                <label class="check" style="margin-top:12px"><input type="checkbox" id="usePaid" checked> Use my credits when no public email is found</label>
+                <p class="hint" id="keysHint" style="margin-top:8px"></p>
+            </details>
+
+            <button class="btn btn-primary" id="searchBtn" onclick="searchRecruiters()"><span id="searchBtnText">Find recruiters</span></button>
+        </div>
+    </aside>
+
+    <main>
+        <div class="main-head">
+            <div>
+                <h1>Recruiters<span class="count" id="totalCount">0</span></h1>
+                <p>Current employees only, with LinkedIn profiles. Emails shown are real ones (published online or from your ContactOut/Apollo keys) — never guessed.</p>
+            </div>
+            <div class="actions">
+                <input type="search" id="filterInput" class="input filter" placeholder="Filter by name, title or company" oninput="applyFilter()" disabled>
+                <button id="findEmailsBtn" class="btn btn-primary btn-sm" onclick="findEmails()" disabled>Find emails</button>
+                <button id="previewBtn" class="btn btn-ghost btn-sm" onclick="openPreview()" disabled>Preview sheet</button>
+                <button id="exportCsvBtn" class="btn btn-ghost btn-sm" onclick="exportCsv()" disabled>Download CSV</button>
+            </div>
+        </div>
+
+        <div class="grid" id="tableBody">
+            <div class="empty">
+                <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                <h3>No search yet</h3>
+                <p>Add one or more companies on the left and press “Find recruiters”.</p>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- Email Modal -->
+<div id="emailModal" class="overlay" onclick="if(event.target===this)closeModal()">
+    <div class="modal">
+        <div class="modal-head">
+            <h2>Cold email draft</h2>
+            <button class="icon-btn" onclick="closeModal()" aria-label="Close">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="meta-box">
+                <span><strong>To</strong> <span id="modalToEmail"></span></span>
+                <span><strong>Company</strong> <span id="modalCompany"></span></span>
+                <span><strong>Track</strong> <span id="modalRole"></span></span>
+            </div>
+            <div class="field"><label for="modalSubject">Subject</label><input type="text" id="modalSubject" class="input"></div>
+            <div class="field"><label for="modalBody">Body</label><textarea id="modalBody" class="input"></textarea></div>
+        </div>
+        <div class="modal-foot">
+            <button class="btn btn-ghost btn-sm" onclick="closeModal()">Close</button>
+            <button class="btn btn-ghost btn-sm" onclick="copyEmailDraft()">Copy body</button>
+            <button class="btn btn-primary btn-sm" onclick="openMailClient()">Open in email client</button>
+        </div>
+    </div>
+</div>
+
+<!-- Sheet Preview Modal -->
+<div id="previewModal" class="overlay" onclick="if(event.target===this)closePreview()">
+    <div class="modal sheet-modal">
+        <div class="modal-head">
+            <h2>Sheet preview</h2>
+            <button class="icon-btn" onclick="closePreview()" aria-label="Close">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="sheet-scroll">
+                <table class="sheet">
+                    <thead>
+                        <tr><th class="rownum"></th><th>A</th><th>B</th><th>C</th><th>D</th></tr>
+                        <tr class="names"><th class="rownum">1</th><th>Recruiter Name</th><th>Email</th><th>Company</th><th>About the Recruiter</th></tr>
+                    </thead>
+                    <tbody id="previewBody"></tbody>
+                </table>
+            </div>
+            <div class="sheet-note" id="previewNote"></div>
+        </div>
+        <div class="modal-foot">
+            <button class="btn btn-ghost btn-sm" onclick="closePreview()">Close</button>
+            <button class="btn btn-ghost btn-sm" onclick="copySheet()">Copy to clipboard</button>
+            <button class="btn btn-primary btn-sm" onclick="exportCsv()">Download CSV</button>
+        </div>
+    </div>
+</div>
+
+<div id="toast" class="toast" role="status"><span id="toastMsg">Done</span></div>
+
+<script>
+    let currentLeads = [];
+    let activeLeadForModal = null;
+
+    const ICON_LINKEDIN = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>';
+    const ICON_COPY = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+    const ICON_CHECK = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
+
+    // ---------- Company list (type to add, ✕ to delete) ----------
+    // status: pending -> running -> done
+    let companies = [];
+    let searching = false;
+
+    function companyKey(e) {
+        const input = e.target;
+        if (e.key === 'Enter' || e.key === ',') {
+            e.preventDefault();
+            if (input.value.trim()) addCompany(input.value);
+            else if (e.key === 'Enter') searchRecruiters();
+        } else if (e.key === 'Backspace' && !input.value && companies.length) {
+            removeCompany(companies[companies.length - 1].name);
+        }
+    }
+
+    function addCompany(raw) {
+        const input = document.getElementById('companyInput');
+        let changed = false;
+        String(raw || '').split(/[,;\n]+/).map(n => n.trim().replace(/\s+/g, ' ')).filter(Boolean).forEach(name => {
+            if (!companies.some(c => c.name.toLowerCase() === name.toLowerCase())) { companies.push({ name, status: 'pending', count: 0 }); changed = true; }
+        });
+        input.value = '';
+        if (changed) renderCompanies();   // (re-drawing on every blur would swallow the click on ✕)
+    }
+
+    function removeCompany(name) {
+        companies = companies.filter(c => c.name !== name);
+        currentLeads = currentLeads.filter(l => l.company !== name);
+        renderCompanies();
+        applyFilter();
+        refreshButtons();
+    }
+
+    function renderCompanies() {
+        document.getElementById('companyTags').innerHTML = companies.map(c => {
+            const note = c.status === 'running' ? ' <small>searching…</small>' : (c.status === 'done' ? ` <small>${c.count}</small>` : '');
+            return `<span class="ctag ${c.status === 'running' ? 'running' : ''}">${escapeHtml(c.name)}${note}<button type="button" title="Remove ${escapeHtml(c.name)}" aria-label="Remove ${escapeHtml(c.name)}" data-name="${escapeHtml(c.name)}" onclick="event.stopPropagation();removeCompany(this.dataset.name)">×</button></span>`;
+        }).join('');
+        document.getElementById('companyInput').placeholder = companies.length ? 'Add another…' : 'Type a company, press Enter';
+    }
+
+    function refreshButtons() {
+        const has = currentLeads.length > 0;
+        ['previewBtn', 'findEmailsBtn', 'exportCsvBtn', 'filterInput'].forEach(id => {
+            if (id === 'findEmailsBtn' && findingEmails) return;
+            document.getElementById(id).disabled = !has;
+        });
+    }
+
+    // Segmented controls drive the values the search reads
+    function radioValue(name) { const r = document.querySelector(`input[name="${name}"]:checked`); return r ? r.value : ''; }
+
+    let toastTimer;
+    function showToast(msg, isError = false) {
+        const toast = document.getElementById('toast');
+        document.getElementById('toastMsg').innerText = msg;
+        toast.classList.toggle('error', isError);
+        toast.classList.add('show');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => toast.classList.remove('show'), 3500);
+    }
+
+    async function searchRecruiters() {
+        addCompany(document.getElementById('companyInput').value);   // anything still typed in the box
+        if (searching) return;
+        if (!companies.length) { showToast('Add at least one company', true); return; }
+
+        // Nothing new to search -> run everything again
+        if (!companies.some(c => c.status === 'pending')) {
+            companies.forEach(c => { c.status = 'pending'; c.count = 0; });
+            currentLeads = [];
+        }
+
+        const role = document.getElementById('roleSelect').value;
+        const location = radioValue('loc') || 'India';
+        const limit = parseInt(document.getElementById('limitSelect').value);
+        const depth = radioValue('depth') || 'deep';
+        const tech_only = document.getElementById('techOnly').checked;
+        const verified_only = document.getElementById('verifiedOnly').checked;
+
+        const btn = document.getElementById('searchBtn');
+        const btnText = document.getElementById('searchBtnText');
+        searching = true;
+        btn.disabled = true;
+        let failed = 0, searched = 0;
+
+        // Companies added while this loop runs are picked up automatically.
+        let c;
+        while ((c = companies.find(x => x.status === 'pending'))) {
+            c.status = 'running';
+            renderCompanies();
+            btnText.innerHTML = `<span class="spinner"></span> Searching ${escapeHtml(c.name)}…`;
+            if (!currentLeads.length) {
+                document.getElementById('tableBody').innerHTML = `
+                    <div class="loading">
+                        <div class="ring"></div>
+                        <strong>Searching ${escapeHtml(c.name)}…</strong>
+                        ${depth === 'deep' ? 'A deep search runs many queries and can take a minute or two per company.' : 'This usually takes under a minute per company.'}
+                    </div>`;
+            }
+            let leads = [];
+            try {
+                const response = await fetch('/api/search', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ company: c.name, role_category: role, location, limit, depth, tech_only, verified_only })
+                });
+                const data = await response.json();
+                if (data.success) leads = data.leads || [];
+                else { failed++; showToast(data.message || `Search failed for ${c.name}`, true); }
+            } catch (err) {
+                failed++;
+                console.error(err);
+            }
+            searched++;
+            if (companies.includes(c)) {          // not removed while it was being searched
+                c.status = 'done';
+                c.count = leads.length;
+                const others = currentLeads.filter(l => l.company !== c.name);
+                const seen = new Set(others.map(l => l.linkedin_url));
+                currentLeads = others.concat(leads.filter(l => !seen.has(l.linkedin_url)).map(l => ({ ...l, company: c.name })));
+            }
+            renderCompanies();
+            applyFilter();
+            refreshButtons();
+        }
+
+        searching = false;
+        btn.disabled = false;
+        btnText.innerText = 'Find recruiters';
+        const n = currentLeads.length;
+        if (failed && failed === searched) showToast('Search failed. Check the server logs.', true);
+        else showToast(`Found ${n} recruiter${n === 1 ? '' : 's'} across ${companies.length} compan${companies.length === 1 ? 'y' : 'ies'}`);
+    }
+
+    function applyFilter() {
+        const q = document.getElementById('filterInput').value.trim().toLowerCase();
+        const list = q ? currentLeads.filter(l => `${l.name} ${l.title} ${l.company}`.toLowerCase().includes(q)) : currentLeads;
+        renderTable(list);
+    }
+
+    // ---------- ContactOut keys ----------
+    async function loadKeys() {
+        try {
+            const d = await (await fetch('/api/keys')).json();
+            renderKeys(d);
+        } catch (e) { console.error(e); }
+    }
+
+    function renderKeys(d) {
+        const rows = d.keys || [];
+        const sum = d.summary || {};
+        document.getElementById('keysSummary').innerText = rows.length
+            ? `${rows.length} key${rows.length === 1 ? '' : 's'} · ~${sum.emails_left} emails left`
+            : 'no keys';
+        document.getElementById('keysHint').innerText = rows.length
+            ? `Each key has ${d.credits_per_key} credits; one email costs ${d.cost_per_email}. Keys are used in order, and nothing is spent when no email is found.`
+            : 'Add your ContactOut keys one at a time. They stay on this computer.';
+        document.getElementById('keysList').innerHTML = rows.map(r => {
+            const pct = Math.max(0, Math.min(100, Math.round((r.remaining / d.credits_per_key) * 100)));
+            const cls = r.remaining < d.cost_per_email ? 'b-empty' : (pct <= 30 ? 'b-low' : '');
+            const state = r.remaining < d.cost_per_email ? 'used up' : (r.usable ? '' : 'paused');
+            return `<div class="key-row">
+                <span class="key-name">${escapeHtml(r.masked)}<small>${state || (r.source === '.env' ? 'from .env' : '')}</small></span>
+                <span class="key-actions">
+                    <button class="icon-btn" title="Credits renewed - reset" onclick="keyAction('${r.id}','reset')">↺</button>
+                    ${r.source === '.env' ? '' : `<button class="icon-btn" title="Remove key" onclick="keyAction('${r.id}','remove')">✕</button>`}
+                </span>
+                <div class="bar ${cls}"><i style="width:${pct}%"></i></div>
+                <span class="key-meta">${r.remaining} of ${d.credits_per_key} credits left · ~${Math.floor(r.remaining / d.cost_per_email)} emails</span>
+                ${r.note ? `<span class="key-meta" style="color:var(--danger,#b3261e)">${escapeHtml(r.note)}</span>` : ''}
+            </div>`;
+        }).join('');
+    }
+
+    async function addKey() {
+        const input = document.getElementById('keyInput');
+        const value = input.value.trim();
+        if (!value) { showToast('Paste an API key first', true); return; }
+        try {
+            const res = await fetch('/api/keys', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ keys: value }) });
+            const d = await res.json();
+            if (!res.ok) { showToast(d.detail || 'Could not add key', true); return; }
+            input.value = '';
+            renderKeys(d);
+            showToast(d.added ? `Key added (${d.keys.length} total)` : 'That key was already added or is too short', !d.added);
+        } catch (e) { showToast('Could not add key', true); }
+    }
+
+    async function testKeys() {
+        const btn = document.getElementById('testKeysBtn');
+        btn.disabled = true; btn.innerText = 'Testing…';
+        try {
+            const d = await (await fetch('/api/keys/test', { method: 'POST' })).json();
+            renderKeys(d);
+            const t = d.tests || [];
+            if (!t.length) showToast('Add a key first', true);
+            else {
+                const ok = t.filter(x => x.ok).length;
+                const bad = t.find(x => !x.ok);
+                showToast(ok === t.length ? `All ${ok} key${ok === 1 ? '' : 's'} accepted by ContactOut` : `${ok} of ${t.length} keys accepted. ${bad.message}`, ok !== t.length);
+            }
+        } catch (e) { showToast('Could not test the keys', true); }
+        btn.disabled = false; btn.innerText = 'Test my keys (free)';
+    }
+
+    async function keyAction(id, action) {
+        try {
+            const res = await fetch(action === 'remove' ? `/api/keys/${id}` : `/api/keys/${id}/reset`, { method: action === 'remove' ? 'DELETE' : 'POST' });
+            const d = await res.json();
+            if (!res.ok) { showToast(d.detail || 'Failed', true); return; }
+            renderKeys(d);
+        } catch (e) { showToast('Failed', true); }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => { loadKeys(); renderCompanies(); });
+
+    function hasEmail(lead) {
+        const e = (lead.primary_email || '').trim().toLowerCase();
+        return !!e && e !== 'not found' && e !== 'none' && e.includes('@');
+    }
+
+    function sourceLabel(conf) {
+        const c = (conf || '').toLowerCase();
+        if (c.includes('contactout')) return 'ContactOut';
+        if (c.includes('apollo')) return 'Apollo';
+        return 'Published';
+    }
+
+    function emailRowHtml(lead) {
+        if (lead._emailLoading) return '<div class="email-row"><span class="mini-spin"></span><span class="none">Looking for email…</span></div>';
+        if (hasEmail(lead)) {
+            const em = escapeHtml(lead.primary_email);
+            return `<div class="email-row"><span class="addr" title="${escapeHtml(lead.confidence || '')}">${em}</span><span class="conf pub" title="${escapeHtml(lead.confidence || '')}">${sourceLabel(lead.confidence)}</span><button class="icon-btn" title="Copy email" onclick="copyUrl('${em}', this)">${ICON_COPY}</button></div>`;
+        }
+        if (lead._emailDone) {
+            const why = lead._emailNote ? `<span class="none" style="font-size:12px;color:var(--danger,#b3261e)" title="${escapeHtml(lead._emailNote)}">${escapeHtml(lead._emailNote)}</span>` : '';
+            return `<div class="email-row"><span class="none">No public email found</span></div>${why ? `<div class="email-row">${why}</div>` : ''}`;
+        }
+        return '<div class="email-row"><span class="none">Email not searched yet</span></div>';
+    }
+
+    let findingEmails = false;
+    async function findEmails() {
+        if (findingEmails || currentLeads.length === 0) return;
+        findingEmails = true;
+        const btn = document.getElementById('findEmailsBtn');
+        btn.disabled = true;
+        const todo = currentLeads.filter(l => !hasEmail(l));
+        let done = 0;
+        btn.innerText = `Finding emails 0/${todo.length}…`;
+
+        const worker = async () => {
+            while (todo.length) {
+                const lead = todo.shift();
+                lead._emailLoading = true; applyFilter();
+                try {
+                    const res = await fetch('/api/find-email', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ name: lead.name, company: lead.company, linkedin_url: lead.linkedin_url || '', snippet: lead.snippet || '', use_paid: document.getElementById('usePaid').checked })
+                    });
+                    const d = await res.json();
+                    lead.primary_email = d.primary_email || '';
+                    lead.confidence = d.confidence || '';
+                    lead.alternative_emails = d.alternative_emails || [];
+                    lead._emailNote = d.note || '';
+                } catch (e) { console.error(e); }
+                lead._emailLoading = false; lead._emailDone = true;
+                done++;
+                loadKeys();
+                btn.innerText = `Finding emails ${done}/${done + todo.length}…`;
+                applyFilter();
+            }
+        };
+        await Promise.all([worker(), worker(), worker()]);
+        findingEmails = false;
+        btn.disabled = false;
+        btn.innerText = 'Find emails';
+        const found = currentLeads.filter(hasEmail).length;
+        let keyNote = '';
+        try {
+            const k = await (await fetch('/api/keys-status')).json();
+            if (k.contactout && k.contactout.total) keyNote = ` · ContactOut credits left: ${k.contactout.credits_left} (~${k.contactout.emails_left} emails)`;
+        } catch (e) { /* status is optional */ }
+        // Keep the saved sheet (data/leads_master.csv) in step with what the cards show
+        let saved = '';
+        try {
+            const r = await fetch('/api/sync-sheets', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ leads: currentLeads, batch: false })
+            });
+            if (r.ok) saved = ' · saved to sheet';
+        } catch (e) { console.log('Auto-save error:', e); }
+        showToast(`Found a real email for ${found} of ${currentLeads.length} recruiters${saved}${keyNote}`);
+    }
+
+    function updateLeadEmail(idx, newEmail) { if (currentLeads[idx]) currentLeads[idx].primary_email = newEmail.trim(); }
+    function updateLeadPhone(idx, newPhone) { if (currentLeads[idx]) currentLeads[idx].phone_number = newPhone.trim(); }
+
+    function renderTable(leads) {
+        const grid = document.getElementById('tableBody');
+        document.getElementById('totalCount').innerText =
+            leads.length === currentLeads.length ? leads.length : `${leads.length} of ${currentLeads.length}`;
+
+        if (leads.length === 0) {
+            grid.innerHTML = `
+                <div class="empty">
+                    <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+                    <h3>No recruiters found</h3>
+                    <p>Try another company name, a deep search, or untick “Verified only” / “Tech-focused only”.</p>
+                </div>`;
+            return;
+        }
+
+        grid.innerHTML = leads.map((lead, idx) => {
+            const initials = (lead.name || '?').split(' ').filter(Boolean).map(n => n[0]).join('').slice(0, 2).toUpperCase();
+            const conf = (lead.match_confidence || '').toLowerCase();
+            const confTag = conf === 'verified' ? '<span class="tag verified">Verified</span>'
+                          : conf === 'likely' ? '<span class="tag likely">Likely</span>'
+                          : '<span class="tag">Current</span>';
+            const techTag = lead.tech_focus ? '<span class="tag tech">Tech</span>' : '';
+            const url = lead.linkedin_url || '';
+
+            return `
+                <article class="person-card">
+                    <div class="person-top">
+                        <div class="avatar">${escapeHtml(initials)}</div>
+                        <div style="min-width:0">
+                            <div class="person-name">${escapeHtml(lead.name)}</div>
+                            <div class="person-title">${escapeHtml(lead.title)}</div>
+                        </div>
+                        <span class="idx">${idx + 1}</span>
+                    </div>
+                    <div class="meta">
+                        ${confTag}${techTag}
+                        <span class="tag">${escapeHtml(lead.company)}</span>
+                        <span class="tag">${escapeHtml(lead.location || 'India')}</span>
+                    </div>
+                    ${emailRowHtml(lead)}
+                    <div class="person-foot">
+                        <a class="profile-link" href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">${ICON_LINKEDIN} View profile</a>
+                        ${hasEmail(lead) ? `<button class="icon-btn" title="Draft cold email" onclick="openEmailModal('${escapeHtml(url)}')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg></button>` : ''}
+                        <button class="icon-btn" title="Copy profile link" onclick="copyUrl('${escapeHtml(url)}', this)">${ICON_COPY}</button>
+                    </div>
+                </article>`;
+        }).join('');
+    }
+
+    // Rows exactly as they will appear in the sheet / CSV
+    const SHEET_HEADERS = ['Recruiter Name', 'Email', 'Company', 'About the Recruiter'];
+    function sheetRows() {
+        return currentLeads.map(l => [
+            (l.name || '').trim(),
+            hasEmail(l) ? l.primary_email.trim() : '',
+            (l.company || '').trim(),
+            (l.about || l.title || '').trim(),
+        ]);
+    }
+
+    function openPreview() {
+        const rows = sheetRows();
+        document.getElementById('previewBody').innerHTML = rows.map((r, i) => `
+            <tr>
+                <td class="rownum">${i + 2}</td>
+                <td class="c-a">${escapeHtml(r[0])}</td>
+                <td class="c-b ${r[1] ? '' : 'blank'}">${r[1] ? escapeHtml(r[1]) : ''}</td>
+                <td class="c-c">${escapeHtml(r[2])}</td>
+                <td>${escapeHtml(r[3])}</td>
+            </tr>`).join('');
+        const withEmail = rows.filter(r => r[1]).length;
+        document.getElementById('previewNote').innerText =
+            `${rows.length} recruiter${rows.length === 1 ? '' : 's'} · ${withEmail} with a real email. ` +
+            (withEmail < rows.length ? 'Email stays blank when no real address was found — none are guessed. ' : '') +
+            (findingEmails ? 'Email search is still running…' : (currentLeads.some(l => l._emailDone) ? '' : 'Press “Find emails” to look for published emails.'));
+        document.getElementById('previewModal').style.display = 'flex';
+    }
+    function closePreview() { document.getElementById('previewModal').style.display = 'none'; }
+
+    function csvSafe(v) {
+        v = String(v || '');
+        // stop spreadsheet apps from running text that starts like a formula
+        return /^[=+\-@\t\r]/.test(v) ? "'" + v : v;
+    }
+
+    function exportCsv() {
+        if (!currentLeads || currentLeads.length === 0) {
+            window.location.href = '/api/download-csv';
+            return;
+        }
+
+        const rows = [SHEET_HEADERS, ...sheetRows()];
+        const csvContent = rows.map(r => r.map(val => {
+            const str = csvSafe(val);
+            return (str.includes(',') || str.includes('"') || str.includes('\n')) ? `"${str.replace(/"/g, '""')}"` : str;
+        }).join(',')).join('\r\n');
+
+        // UTF-8 BOM for correct character handling in Excel
+        const blob = new Blob(['﻿' + csvContent], { type: 'text/csv;charset=utf-8;' });
+        const downloadUrl = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = downloadUrl;
+        const comp = companies.length === 1 ? companies[0].name : 'all';
+        a.download = `${comp.toLowerCase().replace(/[^a-z0-9]/g, '_')}_recruiters.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(downloadUrl);
+
+        showToast(`Downloaded CSV with ${currentLeads.length} recruiters`);
+
+        // Also keep a copy in the project's master CSV
+        fetch('/api/sync-sheets', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ leads: currentLeads })
+        }).catch(err => console.log('Background save error:', err));
+    }
+
+    function copySheet() {
+        if (!currentLeads || currentLeads.length === 0) return;
+        const rows = [SHEET_HEADERS, ...sheetRows()];
+        const tsvContent = rows.map(r => r.map(val => {
+            let str = String(val || '');
+            if (str.includes('\t') || str.includes('\n') || str.includes('"')) {
+                str = '"' + str.replace(/"/g, '""') + '"';
+            }
+            return str;
+        }).join('\t')).join('\n');
+        
+        const done = () => showToast('Sheet copied! You can now paste it in Excel.');
+        const fail = () => {
+            const ta = document.createElement('textarea');
+            ta.value = tsvContent;
+            document.body.appendChild(ta);
+            ta.select();
+            try { document.execCommand('copy'); done(); }
+            catch(e) { showToast('Failed to copy', true); }
+            document.body.removeChild(ta);
+        };
+        
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(tsvContent).then(done).catch(fail);
+        } else {
+            fail();
+        }
+    }
+
+    async function openEmailModal(url) {
+        activeLeadForModal = currentLeads.find(l => l.linkedin_url === url);
+        if (!activeLeadForModal) return;
+
+        document.getElementById('modalToEmail').innerText = activeLeadForModal.primary_email || '—';
+        document.getElementById('modalCompany').innerText = activeLeadForModal.company;
+        document.getElementById('modalRole').innerText = (activeLeadForModal.role_category || '').toUpperCase();
+
+        try {
+            const res = await fetch('/api/generate-email', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    recruiter_name: activeLeadForModal.name,
+                    company: activeLeadForModal.company,
+                    role_category: activeLeadForModal.role_category
+                })
+            });
+            const draft = await res.json();
+            document.getElementById('modalSubject').value = draft.subject;
+            document.getElementById('modalBody').value = draft.body;
+        } catch (e) { console.error(e); }
+
+        document.getElementById('emailModal').style.display = 'flex';
+    }
+
+    function closeModal() { document.getElementById('emailModal').style.display = 'none'; }
+
+    function copyEmailDraft() {
+        navigator.clipboard.writeText(document.getElementById('modalBody').value);
+        showToast('Email body copied to clipboard');
+    }
+
+    function openMailClient() {
+        if (!activeLeadForModal) return;
+        const to = activeLeadForModal.primary_email;
+        const subject = encodeURIComponent(document.getElementById('modalSubject').value);
+        const body = encodeURIComponent(document.getElementById('modalBody').value);
+        window.location.href = `mailto:${to}?subject=${subject}&body=${body}`;
+    }
+
+    function escapeHtml(string) {
+        if (!string) return '';
+        return String(string).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+    }
+
+    function copyUrl(url, btn) {
+        if (!url) return;
+        const done = () => { btn.innerHTML = ICON_CHECK; setTimeout(() => { btn.innerHTML = ICON_COPY; }, 1400); };
+        navigator.clipboard.writeText(url).then(done).catch(() => {
+            const ta = document.createElement('textarea');
+            ta.value = url;
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+            done();
+        });
+    }
+
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeModal(); closePreview(); } });
+</script>
+</body>
+</html>
